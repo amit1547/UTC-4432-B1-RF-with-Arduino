@@ -1,0 +1,93 @@
+#include <SoftwareSerial.h>
+SoftwareSerial portOne(10,11);
+int AUX=2;
+int SET_A=4;
+int SET_B=5;
+
+int read_cmd[]={0xFF,0x56,0xAE,0x35,0xA9,0x55,0x8B,0x00,0x0E};
+int write_cmd[]={0xFF,0x56,0xAE,0x35,0xA9,0x55,0x8C,0x00,0x0E,0x06,0x9F,0x00,0x03,0x00,0x03,0x00,0x05,0x05,0x01,0x0A,0x0B,0x5,0x05};
+
+void setup()
+{
+   Serial.begin(9600);
+   portOne.begin(9600);
+  pinMode(AUX,INPUT);
+  pinMode(SET_A,OUTPUT);
+  pinMode(SET_B,OUTPUT);
+  digitalWrite(SET_A,HIGH);
+  digitalWrite(SET_B,HIGH);
+
+  delay(1);
+ delay(500);
+  for(int i=0;i<23;i++)
+  { 
+    portOne.write(write_cmd[i]);                 //////////////////////////////////////////////////
+    Serial.print(write_cmd[i],HEX);              // WRITING THE WRITE COMMAND(CONFIGURE THE RF)  //
+    Serial.print(" ");                           /////////////////////////////////////////////////
+  }                                              
+ delay(20);
+ Serial.println();
+ delay(500);
+ while(portOne.available()>0)                   
+  {
+   int c=portOne.read();                       /////////////////////////////////////////////////////////
+   Serial.print(c,HEX);                        //   RESPONSE OF WRITE COMMAND(IF VALID WRITE COMMAND) //
+   Serial.print(" ");                          ////////////////////////////////////////////////////////  
+  }
+
+  Serial.println();
+   Serial.println();
+  delay(500);
+ /*******************************************************Read Cmd 1*********************************************/
+ //digitalWrite(setAB,HIGH);
+ delay(1);
+ delay(500);
+ for(int i=0;i<9;i++)
+ { 
+    portOne.write(read_cmd[i]);               /////////////////////////////////////////////////
+    Serial.print(read_cmd[i],HEX);            //   READ COMMAND READ THE CONFIGURED SETTING  //
+    Serial.print(" ");                        /////////////////////////////////////////////////
+ }
+
+ 
+ delay(20);
+ Serial.println();
+ delay(500);
+ while(portOne.available()>0)               
+  {
+   int c=portOne.read();                    ////////////////////////////////////////////////////
+   Serial.print(c,HEX);                     // RESPONSE OF READ COMMAND(IF VALID READ COMMAND)//
+   Serial.print(" ");                       ////////////////////////////////////////////////////
+  }
+  Serial.println();
+ /************************************************External Int for AUX************************************/
+
+     attachInterrupt(0, rcv_, RISING);      // Caputres external interrupt 0  at iPulsepin at rising edge and calls funtion count defined below 
+     // digitalWrite(setAB,LOW);
+/**********************************************************************************************************/
+  pinMode(12,OUTPUT);
+  digitalWrite(12,LOW);
+
+}
+
+void loop()
+{
+
+}
+void rcv_()
+{
+  digitalWrite(SET_A,LOW);
+  digitalWrite(SET_B,LOW);
+  long int unsigned c;
+  while(portOne.available()>0)
+  {
+    c=portOne.read();
+//   // Serial.print("Receving...... ");
+     Serial.print(c,DEC);   
+      digitalWrite(12,HIGH);
+      delay(500);
+      digitalWrite(12,LOW);
+      delay(500);
+  }    
+  Serial.println();
+}
