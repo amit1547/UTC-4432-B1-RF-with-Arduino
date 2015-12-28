@@ -1,0 +1,74 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial portOne(10, 11);
+
+const int AUX=2;
+const int setA=4;
+const int setB=5;
+
+int read_cmd[]={0xFF,0x56,0xAE,0x35,0xA9,0x55,0x8B,0x00,0x0E};
+int write_cmd[]={0xFF,0x56,0xAE,0x35,0xA9,0x55,0x8C,0x00,0x0E,0x06,0x9F,0x00,0x03,0x07,0x03,0x00,0x05,0x0B,0x0A,0x0B,0x0A,0x05,0x05};
+
+int add[10]={0xFF,0x56,0xAE,0x35,0xA9,0x55,0x8C,0x0D,0x01,0x1B};
+
+      char arr[50]={"Harshad Pansuriya"};
+void setup() 
+{
+    Serial.begin(9600);
+    portOne.begin(9600);
+
+    pinMode(AUX,INPUT);
+    pinMode(setA,OUTPUT);
+    pinMode(setB,OUTPUT);   
+    
+    digitalWrite(setA,HIGH);
+    digitalWrite(setB,HIGH);
+    
+    delay(1);
+
+    delay(500);
+
+    for(int i=0;i<23;i++)
+    { 
+      portOne.write(write_cmd[i]);
+      Serial.print(write_cmd[i],HEX);
+    }
+    
+    delay(20);
+    Serial.println();
+
+    delay(500);
+    while(portOne.available()>0)
+    {
+      int c=portOne.read();
+      Serial.print(c,HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+
+    digitalWrite(setA,LOW);
+    digitalWrite(setB,HIGH);
+    
+    attachInterrupt(0,send,LOW);
+}
+
+void send()
+{
+   int data[]={0x25,0x65};
+   Serial.print("sending ..");
+  
+  /* for(int i=0;i<2;i++)
+   {
+      portOne.write(data[i]); 
+      Serial.println(data[i],HEX);
+         delay(500);
+   }*/
+   portOne.write(arr);
+   Serial.println(arr);
+   delay(500);
+}
+
+void loop() 
+{
+
+}
